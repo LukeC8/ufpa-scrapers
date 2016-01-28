@@ -30,21 +30,16 @@
 		echo "Não foi possível acessar a página";
 		exit();
 	}
-	
-	if(!($link = mysql_connect($mysql_host, $mysql_user, $mysql_password)))
+
+	$link = mysqli_connect($mysql_host, $mysql_user, $mysql_password, $mysql_database);
+
+	if(mysqli_connect_errno())
 	{
-		echo "conexao com o bd falhou";
-		exit;
+			echo "conexao com o bd falhou";
+				exit;
 	}
 
 	mysql_set_charset('UTF8', $link);
-	
-	//seleciona tabela
-	if(!mysql_select_db($mysql_database,$link))
-	{
-		echo "conexao com o bd falhou";
-		exit;
-	}
 	
 	//retirar algumas tags desnecessarias e vai para a
 	$texto_limpo = strstr(strip_tags($pg, '<li><a></a></li>'), "<li><a href=");

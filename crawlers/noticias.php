@@ -31,7 +31,9 @@ curl_close($ch);
 $texto_limpo = strip_tags($pgNoticias, '<li><a></a></li>');
 
 // abre uma conexao com o banco de dados
-if(!($link = mysql_connect($mysql_host, $mysql_user, $mysql_password)))
+$link = mysqli_connect($mysql_host, $mysql_user, $mysql_password, $mysql_database);
+
+if(mysqli_connect_errno())
 {
 	echo "conexao com o bd falhou";
 	exit;
@@ -39,14 +41,6 @@ if(!($link = mysql_connect($mysql_host, $mysql_user, $mysql_password)))
 
 // informa ao servidor do bd que utilizamos a codificacao do texto em utf8
 mysql_set_charset('UTF8', $link);
-
-//seleciona banco de dados que iremos trabalhar
-if(!mysql_select_db($mysql_database,$link))
-{
-	echo "conexao com o bd falhou";
-	exit;
-}
-
 
 // condicional criado pelo fato de a pagina de noticias ter um bug na listagem
 // de noticias que existem no banco de dados
@@ -87,13 +81,7 @@ else // se nao for encontrado erro na pagina
 		echo "<br>Url: ".$endereco;
 		//echo "<br>";
 		
-		//echo $temp = fgets($arquivo, 2000);
-		
 		// recebe o texto da noticia
-		
-		// [998] - verificar se a primeira linha pode se tornar a chamada
-		//       - de noticias no aplicativo
-	//	/*echo*/ $noticia =  fgets($arquivo, 2000).fgets($arquivo, 2000);
 		$noticia = $textInLines[$linha+1].$textInLines[$linha+2];
 		//echo "<br>";
 		echo "<br>Noticia:".$noticia."\n<br>";
@@ -116,9 +104,7 @@ else // se nao for encontrado erro na pagina
 
 	}
 	
-	// educadamente fechando as conexoes abertas e os arquivos utilizados
 	mysql_close($link);
-	//fclose($arquivo);	
 }
 
 

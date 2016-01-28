@@ -42,16 +42,11 @@ $textInLines = explode("\n", $texto_limpo);
 /****************************************************
 	-inicializa conexao com bd
 ****************************************************/
-if(!($link = mysql_connect($mysql_host, $mysql_user, $mysql_password)))
-{
-	echo "conexao com o servidor mysql falhou";
-	exit;
-}
+$link = mysqli_connect($mysql_host, $mysql_user, $mysql_password, $mysql_database);
 
-//seleciona base de dados
-if(!mysql_select_db($mysql_database,$link))
+if(mysqli_connect_errno())
 {
-	echo "conexao com o banco falhou";
+	echo "conexao com o bd falhou\n";
 	exit;
 }
 

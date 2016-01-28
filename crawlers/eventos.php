@@ -31,21 +31,15 @@ curl_close($ch);
 $texto_limpo = strip_tags($pgeventos, '<li><a></a></li>');
 //echo $texto_limpo;
 
-if(!($link = mysql_connect($mysql_host, $mysql_user, $mysql_password)))
+$link = mysqli_connect($mysql_host, $mysql_user, $mysql_password, $mysql_database);
+
+if(mysqli_connect_errno())
 {
-	echo "conexao com o bd falhou";
-	exit;
+		echo "conexao com o bd falhou\n";
+		exit;
 }
 
 mysql_set_charset('UTF8', $link);
-
-//seleciona base de dados
-if(!mysql_select_db($mysql_database,$link))
-{
-	echo "conexao com o bd falhou";
-	exit;
-}
-
 
 if(strstr($texto_limpo, '404') != null)
 {
