@@ -31,15 +31,15 @@
 		exit();
 	}
 
-	$link = mysqli_connect($mysql_host, $mysql_user, $mysql_password, $mysql_database);
+	$link = mysqli_connect($mysqli_host, $mysqli_user, $mysqli_password, $mysqli_database);
 
-	if(mysqli_connect_errno())
+	if(mysqli_connect_errno($link))
 	{
 			echo "conexao com o bd falhou";
 				exit;
 	}
 
-	mysql_set_charset('UTF8', $link);
+	mysqli_set_charset($link, 'UTF8');
 	
 	//retirar algumas tags desnecessarias e vai para a
 	$texto_limpo = strstr(strip_tags($pg, '<li><a></a></li>'), "<li><a href=");
@@ -86,14 +86,14 @@
 		 $sql = sprintf("INSERT `editais`(`id`, `edital`, `link`) VALUES(%d, '%s', '%s') ON DUPLICATE KEY UPDATE edital='%s', link='%s'\n", $i+1, $tex_cod, $ocorrencias[$i*2], $tex_cod, $ocorrencias[$i*2]); 
 		//echo "<br><br>";
 		//---------------------------------------------------------------------
-		$result = mysql_query($sql) or die(mysql_error());
+		$result = mysqli_query($link,$sql) or die(mysqli_error($link));
 			if(!$result)
 		{
 			echo "erro [03]";
 			break;
 		}
 	}
-	mysql_close($link);
+	mysqli_close($link);
 	
 ?>
 

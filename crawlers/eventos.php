@@ -31,15 +31,15 @@ curl_close($ch);
 $texto_limpo = strip_tags($pgeventos, '<li><a></a></li>');
 //echo $texto_limpo;
 
-$link = mysqli_connect($mysql_host, $mysql_user, $mysql_password, $mysql_database);
+$link = mysqli_connect($mysqli_host, $mysqli_user, $mysqli_password, $mysqli_database);
 
-if(mysqli_connect_errno())
+if(mysqli_connect_errno($link))
 {
 		echo "conexao com o bd falhou\n";
 		exit;
 }
 
-mysql_set_charset('UTF8', $link);
+mysqli_set_charset($link,'UTF8');
 
 if(strstr($texto_limpo, '404') != null)
 {
@@ -70,14 +70,14 @@ else
 	//echo "<br><br>"."eventos_BD"."<br>";
 	//limpa todas as linhas da tabela **
 	// pensar em um algoritmo melhor para atualizar a tabela
-	mysql_query("TRUNCATE eventos");
+	mysqli_query($link,"TRUNCATE eventos");
 	
 	$query = "SELECT * FROM `eventos` ORDER BY `id` DESC LIMIT 0 , 10";
 	
-	mysql_query("SET NAMES 'utf8'");
-	mysql_query('SET character_set_connection=utf8');
-	mysql_query('SET character_set_client=utf8');
-	mysql_query('SET character_set_results=utf8');
+	mysqli_query($link,"SET NAMES 'utf8'");
+	mysqli_query($link,'SET character_set_connection=utf8');
+	mysqli_query($link,'SET character_set_client=utf8');
+	mysqli_query($link,'SET character_set_results=utf8');
 	
 	for($i = 0; $i < $eventos_atualizados; $i++)
 	{
@@ -85,7 +85,7 @@ else
 		$sql = sprintf("INSERT INTO `eventos`(`evento`, `link`) VALUES('%s', '%s')\n", iconv("CP1252", "UTF-8", addslashes($eventos_update[($i*2)+1])), $eventos_update[$i*2]); 
 		//echo "<br><br>";
 		//---------------------------------------------------------------------
-		$result = mysql_query($sql) or die(mysql_error());
+		$result = mysqli_query($link,$sql) or die(mysqli_error($link));
 			if(!$result)
 		{
 			echo "erro [03]";
@@ -93,7 +93,7 @@ else
 		}
 	}
 	
-	mysql_close($link);
+	mysqli_close($link);
 }
 
 ?>

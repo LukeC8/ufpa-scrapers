@@ -42,25 +42,25 @@ $textInLines = explode("\n", $texto_limpo);
 /****************************************************
 	-inicializa conexao com bd
 ****************************************************/
-$link = mysqli_connect($mysql_host, $mysql_user, $mysql_password, $mysql_database);
+$link = mysqli_connect($mysqli_host, $mysqli_user, $mysqli_password, $mysqli_database);
 
-if(mysqli_connect_errno())
+if(mysqli_connect_errno($link))
 {
 	echo "conexao com o bd falhou\n";
 	exit;
 }
 
-mysql_query("SET NAMES 'utf8'");
-mysql_query('SET character_set_connection=utf8');
-mysql_query('SET character_set_client=utf8');
-mysql_query('SET character_set_results=utf8');
+mysqli_query($link,"SET NAMES 'utf8'");
+mysqli_query($link,'SET character_set_connection=utf8');
+mysqli_query($link,'SET character_set_client=utf8');
+mysqli_query($link,'SET character_set_results=utf8');
 
 //busca pela primeira o correncia de data
 $data = strip_tags($textInLines[0]);
 echo $data;
 //echo $DATA = fgets($arquivo, 1000); 
 $sql_data = sprintf("UPDATE `cardapio` SET `data`='%s'", $data);
-mysql_query($sql_data);
+mysqli_query($link,$sql_data);
 
 echo "<br><br><hr>";
 $dias = array('SEGUNDA', 'TERÇA','QUARTA', 'QUINTA', 'SEXTA');
@@ -96,7 +96,7 @@ for($i = 0, $linha = 1; $i<5; $linha++)
 	$sql = sprintf("UPDATE `cardapio` SET `almoco`='%s', `jantar`='%s' WHERE `dias`='%s'\n", addslashes($ALMOCO), addslashes("$JANTAR"),addslashes($dias[$i]));
 	//echo "<br><br>";
 	//---------------------------------------------------------------------
-	$result = mysql_query($sql) or die(mysql_error());
+	$result = mysqli_query($link,$sql) or die(mysqli_error($link));
 	if(!$result)
 	{
 		echo "erro [03]";
@@ -106,6 +106,6 @@ for($i = 0, $linha = 1; $i<5; $linha++)
 	$i++;
 }
 
-mysql_close($link);
+mysqli_close($link);
 
 ?>

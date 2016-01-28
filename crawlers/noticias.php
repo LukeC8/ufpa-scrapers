@@ -31,16 +31,16 @@ curl_close($ch);
 $texto_limpo = strip_tags($pgNoticias, '<li><a></a></li>');
 
 // abre uma conexao com o banco de dados
-$link = mysqli_connect($mysql_host, $mysql_user, $mysql_password, $mysql_database);
+$link = mysqli_connect($mysqli_host, $mysqli_user, $mysqli_password, $mysqli_database);
 
-if(mysqli_connect_errno())
+if(mysqli_connect_errno($link))
 {
 	echo "conexao com o bd falhou";
 	exit;
 }
 
 // informa ao servidor do bd que utilizamos a codificacao do texto em utf8
-mysql_set_charset('UTF8', $link);
+mysqli_set_charset($link,'UTF8');
 
 // condicional criado pelo fato de a pagina de noticias ter um bug na listagem
 // de noticias que existem no banco de dados
@@ -59,10 +59,10 @@ else // se nao for encontrado erro na pagina
 	$texto_limpo = strstr($texto_limpo, "href=");
 	// informa ao banco a codificacao do texto em cada celula do banco
 	//--------------------------------------------------
-		mysql_query("SET NAMES 'utf8'");
-		mysql_query('SET character_set_connection=utf8');
-		mysql_query('SET character_set_client=utf8');
-		mysql_query('SET character_set_results=utf8');
+		mysqli_query("SET NAMES 'utf8'");
+		mysqli_query('SET character_set_connection=utf8');
+		mysqli_query('SET character_set_client=utf8');
+		mysqli_query('SET character_set_results=utf8');
 	//--------------------------------------------------
 	
 	$textInLines = explode("\n", $texto_limpo);
@@ -91,7 +91,7 @@ else // se nao for encontrado erro na pagina
 		//---------------------------------------------------------------------
 		
 		// salva os dados no banco de dados
-		$result = mysql_query($sql) or die(mysql_error());
+		$result = mysqli_query($link,$sql) or die(mysqli_error($link));
 
 		if(!$result)
 		{
@@ -104,7 +104,7 @@ else // se nao for encontrado erro na pagina
 
 	}
 	
-	mysql_close($link);
+	mysqli_close($link);
 }
 
 
