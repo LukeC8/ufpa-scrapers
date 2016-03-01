@@ -13,14 +13,14 @@ echo "<br>	obs: Script sem uso de operacoes envolvendo arquivos";
 echo "</blockquote>";
 echo "**************************************************************/<br><br>";
 
-include 'config.php';
+include '../../config.php';
 
 $eventos_update[20];
 
 $ch = curl_init();
 
 // informar URL e outras funções ao CURL
-curl_setopt($ch, CURLOPT_URL, "http://www.portal.ufpa.br/imprensa/todosEventos.php");
+curl_setopt($ch, CURLOPT_URL, $url_eventos);
 //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
@@ -31,15 +31,15 @@ curl_close($ch);
 $texto_limpo = strip_tags($pgeventos, '<li><a></a></li>');
 //echo $texto_limpo;
 
-$link = mysqli_connect($mysqli_host, $mysqli_user, $mysqli_password, $mysqli_database);
+$link = dbConnect();
 
-if(mysqli_connect_errno($link))
+if(!$link)
 {
-		echo "conexao com o bd falhou\n";
-		exit;
+	echo "conexao com o bd falhou";
+	exit;
 }
 
-mysqli_set_charset($link,'UTF8');
+mysqli_set_charset($link, 'UTF8');
 
 if(strstr($texto_limpo, '404') != null)
 {
@@ -70,14 +70,14 @@ else
 	//echo "<br><br>"."eventos_BD"."<br>";
 	//limpa todas as linhas da tabela **
 	// pensar em um algoritmo melhor para atualizar a tabela
-	mysqli_query($link,"TRUNCATE eventos");
+	mysqli_query($link, "TRUNCATE eventos");
 	
 	$query = "SELECT * FROM `eventos` ORDER BY `id` DESC LIMIT 0 , 10";
 	
-	mysqli_query($link,"SET NAMES 'utf8'");
-	mysqli_query($link,'SET character_set_connection=utf8');
-	mysqli_query($link,'SET character_set_client=utf8');
-	mysqli_query($link,'SET character_set_results=utf8');
+	mysqli_query($link, "SET NAMES 'utf8'");
+	mysqli_query($link, 'SET character_set_connection=utf8');
+	mysqli_query($link, 'SET character_set_client=utf8');
+	mysqli_query($link, 'SET character_set_results=utf8');
 	
 	for($i = 0; $i < $eventos_atualizados; $i++)
 	{
@@ -85,13 +85,49 @@ else
 		$sql = sprintf("INSERT INTO `eventos`(`evento`, `link`) VALUES('%s', '%s')\n", iconv("CP1252", "UTF-8", addslashes($eventos_update[($i*2)+1])), $eventos_update[$i*2]); 
 		//echo "<br><br>";
 		//---------------------------------------------------------------------
-		$result = mysqli_query($link,$sql) or die(mysqli_error($link));
+		$result = mysqli_query($link, $sql) or die(mysqli_error($link));
 			if(!$result)
 		{
 			echo "erro [03]";
 			break;
 		}
 	}
+	/*
+	//executa query (envia)
+	$resultado = mysql_query($query);
+	
+	if(!$resultado)
+		exit();
+	
+	$linhas = mysql_num_rows($resultado);
+	
+	if($eventos_atualizados == $linhas)
+	{
+		echo "<br><br>já está Atualizado";
+		mysql_close($link);
+		exit();
+	}
+	else if($eventos_atualizados > $linhas)
+	{
+		for($i= ($eventos_atualizados - $linhas - 1); $i > -1; $i--)
+		{
+			mysql_query('SET character_set_connection=utf8');
+			mysql_query('SET character_set_client=utf8');
+			mysql_query('SET character_set_results=utf8');
+			echo "<br> codigo sql gerado = ";
+			echo $sql = sprintf("INSERT INTO `eventos`(`evento`, `link`) VALUES('%s', '%s')\n", iconv("CP1252", "UTF-8", addslashes($eventos_update[($i*2)+1])), $eventos_update[$i*2]); 
+			echo "<br><br>";
+			//---------------------------------------------------------------------
+			$result = mysql_query($sql) or die(mysql_error());
+
+			if(!$result)
+			{
+				echo "erro [03]";
+				break;
+			}
+		}
+	}
+	*/
 	
 	mysqli_close($link);
 }

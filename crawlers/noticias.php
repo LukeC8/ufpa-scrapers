@@ -13,12 +13,12 @@ echo "<br>	obs: nenhuma";
 echo "</blockquote>";
 echo "**************************************************************/<br><br>";
 
-include 'config.php';
+require '../../config.php';
 
 $ch = curl_init();
 
 // pagina de onde sao retiradas as noticias
-curl_setopt($ch, CURLOPT_URL, "http://www.portal.ufpa.br/imprensa/todasNoticias.php");
+curl_setopt($ch, CURLOPT_URL, $url_noticias);
 
 //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -31,16 +31,16 @@ curl_close($ch);
 $texto_limpo = strip_tags($pgNoticias, '<li><a></a></li>');
 
 // abre uma conexao com o banco de dados
-$link = mysqli_connect($mysqli_host, $mysqli_user, $mysqli_password, $mysqli_database);
+$link = dbConnect();
 
-if(mysqli_connect_errno($link))
+if(!$link)
 {
 	echo "conexao com o bd falhou";
 	exit;
 }
 
 // informa ao servidor do bd que utilizamos a codificacao do texto em utf8
-mysqli_set_charset($link,'UTF8');
+mysqli_set_charset($link, 'UTF8');
 
 // condicional criado pelo fato de a pagina de noticias ter um bug na listagem
 // de noticias que existem no banco de dados
@@ -59,10 +59,10 @@ else // se nao for encontrado erro na pagina
 	$texto_limpo = strstr($texto_limpo, "href=");
 	// informa ao banco a codificacao do texto em cada celula do banco
 	//--------------------------------------------------
-		mysqli_query("SET NAMES 'utf8'");
-		mysqli_query('SET character_set_connection=utf8');
-		mysqli_query('SET character_set_client=utf8');
-		mysqli_query('SET character_set_results=utf8');
+		mysqli_query($link,"SET NAMES 'utf8'");
+		mysqli_query($link,'SET character_set_connection=utf8');
+		mysqli_query($link,'SET character_set_client=utf8');
+		mysqli_query($link,'SET character_set_results=utf8');
 	//--------------------------------------------------
 	
 	$textInLines = explode("\n", $texto_limpo);
@@ -91,21 +91,17 @@ else // se nao for encontrado erro na pagina
 		//---------------------------------------------------------------------
 		
 		// salva os dados no banco de dados
-		$result = mysqli_query($link,$sql) or die(mysqli_error($link));
+		$result = mysqli_query($link,$sql) or die(mysqli_error ($link));
 
 		if(!$result)
 		{
 			echo "erro [03]";
 			exit;
 		}
-		//---------------------------------------------------------------------
-		
-		// vai para a proxima noticia (loop)
-
+				
 	}
 	
 	mysqli_close($link);
 }
-
 
 ?>

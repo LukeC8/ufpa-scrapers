@@ -1,4 +1,4 @@
-	<?php
+<?php
 	//header('Content-Type: text/html; charset=CP1252');
 	echo "/**************************************************************<br>";
 	echo "Aplicativo ufpa - lado servidor<br>";
@@ -13,14 +13,14 @@
 	echo "</blockquote>";
 	echo "**************************************************************/<br><br>";
 	
-	include 'config.php';
+	include '../../config.php';
 	
 	$ocorrencias[40];	// matriz com 20 linhas e 2 colunas
-
+	
 	//inicializa variavel curl
 	$ch = curl_init();
 
-	curl_setopt($ch, CURLOPT_URL, "http://www.portal.ufpa.br/imprensa/todosEditais.php");
+	curl_setopt($ch, CURLOPT_URL, $url_editais);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 	$pg = curl_exec($ch);
@@ -31,7 +31,7 @@
 		exit();
 	}
 
-	$link = mysqli_connect($mysqli_host, $mysqli_user, $mysqli_password, $mysqli_database);
+	$link = dbConnect();
 
 	if(mysqli_connect_errno($link))
 	{
