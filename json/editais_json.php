@@ -1,11 +1,11 @@
 <?php
-include 'config.php';
+include '../../config.php';
 
 header('Content-Type: text/html; charset=CP1252');
 
-$db = mysql_connect($mysql_host, $mysql_user, $mysql_password);
+$link = dbConnect();
 
-mysql_set_charset('UTF8', $db);
+mysqli_set_charset($link, 'UTF8');
 
 $editais = array(array("Edital" => " ", "Link" => " "),
 						array("Edital" => " ", "Link" => " "),
@@ -18,36 +18,27 @@ $editais = array(array("Edital" => " ", "Link" => " "),
 						array("Edital" => " ", "Link" => " "),
 						array("Edital" => " ", "Link" => " "));
 
-if(!$db){
+if(!$link){
 	echo "falha ao conectar com o bando de dados";
 	exit;
 }
 
-
-$table = mysql_select_db($mysql_database, $db);
-
-
-if($table == 0)
-	echo "conexao falhou";
-else
-{
 	$query = "SELECT * FROM `editais`";
-	mysql_query("SET NAMES 'utf8'");
-	mysql_query('SET character_set_connection=utf8');
-	mysql_query('SET character_set_client=utf8');
-	mysql_query('SET character_set_results=utf8');
+	mysqli_query($link, "SET NAMES 'utf8'");
+	mysqli_query($link, 'SET character_set_connection=utf8');
+	mysqli_query($link, 'SET character_set_client=utf8');
+	mysqli_query($link, 'SET character_set_results=utf8');
 	//executa query (envia)
-	$resultado = mysql_query($query);
-	$linhas = mysql_num_rows($resultado);
+	$resultado = mysqli_query($link, $query);
+	$linhas = mysqli_num_rows($resultado);
 	if(!$resultado)
 		echo "nada";
 	else
 	{
-		
 		for($i=0;$i<$linhas;$i++)
 		{
 			//mostra o resultado para o usuario
-			$row = mysql_fetch_array($resultado);
+			$row = mysqli_fetch_array($resultado);
     		$editais[$i]['Edital'] =  $row['edital'];
 			$editais[$i]['Link'] = (string) $row['link'];
 		}
@@ -56,8 +47,6 @@ else
 		
 	}
 	
-}
-
-mysql_close($db);
+mysqli_close($link);
 
 ?>
