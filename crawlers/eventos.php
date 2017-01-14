@@ -1,135 +1,65 @@
 <?php
-//header('Content-Type: text/html; charset=CP1252');
-echo "/**************************************************************<br>";
-echo "Aplicativo ufpa - lado servidor<br>";
-echo "<br>";
-echo "<blockquote>Descricao do arquivo:<br>";
-echo "<blockquote>	- Le a pagina de eventos e adiciona";
-echo "<br>	- os eventos mais recentes no banco de dados</blockquote>";
-echo "<br>	Autor: lucas.correa@itec.ufpa.br";
-echo "<br>	Criado em: Qua 05 de Fev de 2014";
-echo "<br>	Versao do script: 2.1";
-echo "<br>	obs: Script sem uso de operacoes envolvendo arquivos";
-echo "</blockquote>";
-echo "**************************************************************/<br><br>";
 
-include '../../config.php';
+/*---------------------------------------------
+ * - Projeto Crawler UFPA
+ *---------------------------------------------
+ * autor: lucas.correa@itec.ufpa.br
+ * 
+ * descricao:
+ *  Pega noticias do site da ufpa e retorna
+ *  as 20 ultimas noticias em um json.
+ *
+ * versao 2.0
+ *
+ */
 
-$eventos_update[20];
+require('News.php');
 
-$ch = curl_init();
+$url_eventos = "https://www.portal.ufpa.br/imprensa/todosEventos.php";
+$news = array();
 
-// informar URL e outras funções ao CURL
-curl_setopt($ch, CURLOPT_URL, $url_eventos);
-//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//---------------------------
+//acessa a pagina de noticias
+//---------------------------
+$curl_object = curl_init();
+curl_setopt($curl_object, CURLOPT_URL, $url_eventos);
+curl_setopt($curl_object, CURLOPT_RETURNTRANSFER, true);
 
-// Acessar a URL e salvar em uma variavel
-$pgeventos = curl_exec($ch);
-curl_close($ch);
+$curl_return = curl_exec($curl_object);
 
-$texto_limpo = strip_tags($pgeventos, '<li><a></a></li>');
-//echo $texto_limpo;
+$http_code = curl_getinfo($curl_object, CURLINFO_HTTP_CODE);
 
-$link = dbConnect();
-
-if(!$link)
+if($http_code != "200") // se na pagina obtida for encontrado a string ERRO
 {
-	echo "conexao com o bd falhou";
-	exit;
+    echo "[{}]";
+    exit(1);
 }
 
-mysqli_set_charset($link, 'UTF8');
+curl_close($curl_object);
 
-if(strstr($texto_limpo, '404') != null)
-{
-	echo "<br>\nerro ao acessar pagina\n<br>";
-}
-else
-{
-	$texto_limpo = strstr($texto_limpo, "Todos");
-	$texto_limpo = strstr($texto_limpo, "href=");
-	$text_inLines = explode("\n", $texto_limpo);
-	for($linha=0, $eventos_atualizados = 0;$linha<100;$linha+=6, $eventos_atualizados++)
-	{
-		if(strlen($text_inLines[$linha]) < 15) // fim da lista  de eventos (olhar html)
-			break;
-		$array = explode('"', $text_inLines[$linha]);
-		
-		$eventos_update[$eventos_atualizados*2] = $array[1];
-		
-		$eventos_update[($eventos_atualizados*2) + 1] = strstr($text_inLines[$linha + 2], " - ");
-		
-		//echo $eventos_update[$eventos_atualizados*2];
-		//echo $eventos_update[($eventos_atualizados*2) + 1];
-		
-		//echo "<br><br>";
-	}
-	
-	echo $eventos_atualizados;
-	//echo "<br><br>"."eventos_BD"."<br>";
-	//limpa todas as linhas da tabela **
-	// pensar em um algoritmo melhor para atualizar a tabela
-	mysqli_query($link, "TRUNCATE eventos");
-	
-	$query = "SELECT * FROM `eventos` ORDER BY `id` DESC LIMIT 0 , 10";
-	
-	mysqli_query($link, "SET NAMES 'utf8'");
-	mysqli_query($link, 'SET character_set_connection=utf8');
-	mysqli_query($link, 'SET character_set_client=utf8');
-	mysqli_query($link, 'SET character_set_results=utf8');
-	
-	for($i = 0; $i < $eventos_atualizados; $i++)
-	{
-		//echo "<br> codigo sql gerado = ";
-		$sql = sprintf("INSERT INTO `eventos`(`evento`, `link`) VALUES('%s', '%s')\n", iconv("CP1252", "UTF-8", addslashes($eventos_update[($i*2)+1])), $eventos_update[$i*2]); 
-		//echo "<br><br>";
-		//---------------------------------------------------------------------
-		$result = mysqli_query($link, $sql) or die(mysqli_error($link));
-			if(!$result)
-		{
-			echo "erro [03]";
-			break;
-		}
-	}
-	/*
-	//executa query (envia)
-	$resultado = mysql_query($query);
-	
-	if(!$resultado)
-		exit();
-	
-	$linhas = mysql_num_rows($resultado);
-	
-	if($eventos_atualizados == $linhas)
-	{
-		echo "<br><br>já está Atualizado";
-		mysql_close($link);
-		exit();
-	}
-	else if($eventos_atualizados > $linhas)
-	{
-		for($i= ($eventos_atualizados - $linhas - 1); $i > -1; $i--)
-		{
-			mysql_query('SET character_set_connection=utf8');
-			mysql_query('SET character_set_client=utf8');
-			mysql_query('SET character_set_results=utf8');
-			echo "<br> codigo sql gerado = ";
-			echo $sql = sprintf("INSERT INTO `eventos`(`evento`, `link`) VALUES('%s', '%s')\n", iconv("CP1252", "UTF-8", addslashes($eventos_update[($i*2)+1])), $eventos_update[$i*2]); 
-			echo "<br><br>";
-			//---------------------------------------------------------------------
-			$result = mysql_query($sql) or die(mysql_error());
+//------------------------
+//obtem os dados da pagina
+//------------------------
+$page_dom = new DOMDocument();
+$page_dom->validateOnParse = true;
 
-			if(!$result)
-			{
-				echo "erro [03]";
-				break;
-			}
-		}
-	}
-	*/
-	
-	mysqli_close($link);
+if (!@$page_dom->loadHTML($curl_return))
+{
+    echo "[{}]";
+    exit(1);
 }
+
+$ul_lists = $page_dom->getElementById('todasNoticias')->getElementsByTagName('ul');
+
+foreach($ul_lists as $ul)
+    foreach($ul->getElementsByTagName('li') as $li)
+        foreach($li->getElementsByTagName('a') as $a)
+            $news[] = new News($a->nodeValue, $a->getAttribute('href'));
+
+//-----------
+//response
+//-----------
+echo json_encode($news);
 
 ?>
+
