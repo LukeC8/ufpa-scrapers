@@ -1,49 +1,45 @@
 <?php
+/*-----------------------------------------------
+ * Projeto UFPA Scrapers
+ *-----------------------------------------------
+ * Arquivo: ScraperNews.php
+ *
+ * Descricao: Classe para acessar os dados da
+ *            paginas de noticias, eventos e editais.
+ *
+ * Autor: lucas.correa[at]itec.ufpa.br
+ * Data de Criacao: 13/01/17
+ * versao: 1.0
+ *
+ * Changes:
+ *  14/01/17 - Add changeURL method
+ *
+ *----------------------------------------------*/
 
 require('News.php');
+require('Scraper.php');
 
-class ScraperNews
+class ScraperNews extends Scraper
 {
-    private $curlObject;
     private $news;
-    private $page_dom;
 
     function __construct($url)
     {
-        $this->curlObject = curl_init();
-
-        curl_setopt($this->curlObject, CURLOPT_URL, $url);
-        curl_setopt($this->curlObject, CURLOPT_RETURNTRANSFER, true);
+        parent::__construct($url);
 
         $this->news = array();
-
-        $this->page_dom = new DOMDocument();
-        $this->page_dom->validateOnParse = true;
     }
 
-    function __destruct()
+    function changeURL($newURL)
     {
-        curl_close($this->curlObject);
+        parent::changeURL($newURL);
+
+        unset($this->news);
+
+        $this->news = array();
     }
 
-    function getWebPage()
-    {
-        $curlReturn = curl_exec($this->curlObject);
-        $httpCode = curl_getinfo($this->curlObject, CURLINFO_HTTP_CODE);
-
-        if (!$curlReturn or $httpCode != "200")
-            throw new Exception("Erro ao acessar página");
-
-        return $curlReturn;
-    }
-
-    function loadHTML($page)
-    {
-        if (!@$this->page_dom->loadHTML($page))
-            throw new Exception("Erro ao gerar objeto DOMDocument a partir da página obtida");
-    }
-
-    function scrapePage($returnFormat = "JSON")
+    function scrapePage($dataFormat = Scraper::RETURN_FORMAT_JSON)
     {
         try
         {
@@ -64,8 +60,10 @@ class ScraperNews
         }
         finally
         {
-            return $returnFormat === "JSON" ? json_encode($this->news) : $this->news;
+            if ($dataFormat != Scraper::RETURN_FORMAT_JSON)
+                return $this->news; //Array
 
+            return json_encode($this->news); //JSON 
         }
     }
 }

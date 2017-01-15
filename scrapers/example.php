@@ -13,22 +13,19 @@ $scraper = new ScraperNews($url_noticias);
 
 echo $scraper->scrapePage() . "\n\n";
 
-unset($scraper);
-
 //------------------------------
 //resposta em JSON para Eventos
 //------------------------------
-$scraper = new ScraperNews($url_eventos);
+$scraper->changeURL($url_eventos);
 
 echo $scraper->scrapePage() . "\n\n";
-
-unset($scraper);
 
 //------------------------------
 //resposta em JSON para Editais
 //------------------------------
-$scraper = new ScraperNews($url_editais);
+$scraper->changeURL($url_editais);
 
 echo $scraper->scrapePage() . "\n\n";
-
+ 
 ?>
+
