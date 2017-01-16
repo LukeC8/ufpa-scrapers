@@ -12,12 +12,13 @@
  * versao: 1.0
  *
  * Changes:
+ *  16/01/17 - $ul_lists => $ulLists
  *  14/01/17 - Add changeURL method
  *
  *----------------------------------------------*/
 
-require('News.php');
-require('Scraper.php');
+require_once('News.php');
+require_once('Scraper.php');
 
 class ScraperNews extends Scraper
 {
@@ -47,9 +48,9 @@ class ScraperNews extends Scraper
 
             $this->loadHTML($webPage);
 
-            $ul_lists = $this->page_dom->getElementById('todasNoticias')->getElementsByTagName('ul');
+            $ulLists = $this->pageDom->getElementById('todasNoticias')->getElementsByTagName('ul');
 
-            foreach($ul_lists as $ul)
+            foreach($ulLists as $ul)
                 foreach($ul->getElementsByTagName('li') as $li)
                     foreach($li->getElementsByTagName('a') as $a)
                         $this->news[] = new News($a->nodeValue, $a->getAttribute('href'));
@@ -69,4 +70,3 @@ class ScraperNews extends Scraper
 }
 
 ?>
-

@@ -11,6 +11,7 @@
  * versao: 1.0
  *
  * Changes:
+ *  16/01/17 - $page_dom => $pageDom
  *
  *----------------------------------------------*/
 
@@ -19,7 +20,7 @@ abstract class Scraper
     const RETURN_FORMAT_JSON = 0;
 
     protected $curlObject;
-    protected $page_dom;
+    protected $pageDom;
 
     function __construct($url)
     {
@@ -28,8 +29,8 @@ abstract class Scraper
         curl_setopt($this->curlObject, CURLOPT_URL, $url);
         curl_setopt($this->curlObject, CURLOPT_RETURNTRANSFER, true);
 
-        $this->page_dom = new DOMDocument();
-        $this->page_dom->validateOnParse = true;
+        $this->pageDom = new DOMDocument();
+        $this->pageDom->validateOnParse = true;
     }
 
     function __destruct()
@@ -39,7 +40,7 @@ abstract class Scraper
 
     protected function loadHTML($page)
     {
-        if (!@$this->page_dom->loadHTML($page))
+        if (!@$this->pageDom->loadHTML($page))
             throw new Exception("Erro ao gerar objeto DOMDocument a partir da página obtida\n");
     }
 
