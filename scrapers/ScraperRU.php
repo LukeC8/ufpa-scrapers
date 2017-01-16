@@ -42,7 +42,7 @@ class ScraperRU extends Scraper
 
     private function cleanStr($str)
     {
-        return utf8_encode(str_replace("\r", "", trim($str)));
+        return str_replace("\r", "", trim($str));
     }
 
     //------------------------------------------------------
@@ -64,7 +64,10 @@ class ScraperRU extends Scraper
     //-------------------------------------------------------
     private function getDayMenu(DOMElement $tbMenu, $day)
     {
-        $line = $tbMenu->getElementsByTagName('tr')->item($day + 1)->getElementsByTagName('td');
+        $line = $tbMenu->
+            getElementsByTagName('tr')->item($day + 1)->
+            getElementsByTagName('td');
+
         $todaysMenu = array();
 
         for($i = 1; $i < $line->length; $i++)

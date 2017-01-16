@@ -48,12 +48,15 @@ class ScraperNews extends Scraper
 
             $this->loadHTML($webPage);
 
-            $ulLists = $this->pageDom->getElementById('todasNoticias')->getElementsByTagName('ul');
+            $ulLists = $this->pageDom->
+                getElementById('todasNoticias')->
+                getElementsByTagName('ul');
 
             foreach($ulLists as $ul)
                 foreach($ul->getElementsByTagName('li') as $li)
                     foreach($li->getElementsByTagName('a') as $a)
-                        $this->news[] = new News($a->nodeValue, $a->getAttribute('href'));
+                        $this->news[] = new News($a->nodeValue,
+                            $a->getAttribute('href'));
         }
         catch (Exception $e)
         {

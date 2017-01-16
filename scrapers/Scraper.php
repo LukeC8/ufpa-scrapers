@@ -41,7 +41,9 @@ abstract class Scraper
     protected function loadHTML($page)
     {
         if (!@$this->pageDom->loadHTML($page))
-            throw new Exception("Erro ao gerar objeto DOMDocument a partir da página obtida\n");
+            throw new Exception(
+                "Erro ao gerar objeto DOMDocument a partir da página obtida\n"
+            );
     }
 
     function getWebPage()
