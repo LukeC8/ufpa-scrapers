@@ -14,6 +14,7 @@
  * Changes:
  *  16/01/17 - $ul_lists => $ulLists
  *  14/01/17 - Add changeURL method
+ *  16/05/19 - Add compatibility with new HTML Layout
  *
  *----------------------------------------------*/
 
@@ -48,15 +49,11 @@ class ScraperNews extends Scraper
 
             $this->loadHTML($webPage);
 
-            $ulLists = $this->pageDom->
-                getElementById('todasNoticias')->
-                getElementsByTagName('ul');
+            $noticias = $this->pageDom->getElementById("adminForm");
 
-            foreach($ulLists as $ul)
-                foreach($ul->getElementsByTagName('li') as $li)
-                    foreach($li->getElementsByTagName('a') as $a)
-                        $this->news[] = new News($a->nodeValue,
-                            $a->getAttribute('href'));
+            foreach ($noticias->getElementsByTagName("div") as $noticia) 
+                if ($noticia->getAttribute("class") === "tileItem")
+                    $this->news[] = new News($noticia);
         }
         catch (Exception $e)
         {

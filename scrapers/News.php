@@ -7,31 +7,56 @@ class News
     public $short_desc;
     public $long_desc;
 
-    private function process_raw_desc ($raw_desc)
+    public function process(DOMElement $element)
     {
-        return  str_replace(
-            array("\n\r", "\r", "\n", "\t"),
-            '',
-            $raw_desc
-        );
+        //get link and short desc
+        foreach($element->getElementsByTagName("h2") as $tile) {
+            if($tile->getAttribute("class") === "tileHeadline") {
+                foreach($tile->getElementsByTagName("a") as $a) {
+                    if ($a->hasAttribute("href")) {
+                        $this->link = $a->getAttribute("href");
+                        $this->short_desc = $a->nodeValue;
+                        break;
+                    }
+                }
+            }
+        }
+
+        //get long_desc
+        foreach($element->getElementsByTagName("span") as $content) {
+            if($content->getAttribute("class") === "description") {
+                foreach($content->getElementsByTagName("p") as $desc) {
+                    $this->long_desc = $desc->nodeValue;
+                    break;
+                }
+            }
+        }
+
+        //get date
+        foreach($element->getElementsByTagName("li") as $li) {
+            foreach($li->getElementsByTagName("i") as $i) {
+                if ($i->getAttribute("class") === "icon-fixed-width icon-calendar") {
+                    $this->date = $li->nodeValue;
+                    break;
+                }
+            }
+        }
+
+        foreach($element->getElementsByTagName("li") as $li) {
+            foreach($li->getElementsByTagName("i") as $i) {
+                if ($i->getAttribute("class") === "icon-fixed-width icon-time") {
+                    $this->date .= ' - ' . $li->nodeValue;
+                    break;
+                }
+            }
+        }
     }
 
-    private function create_desc_array ($raw_desc)
+    function __construct ($raw_desc)
     {
-        return explode (" -", $raw_desc);
+        $this->process($raw_desc);
     }
 
-    function __construct ($raw_desc, $link)
-    {
-        $desc_array = News::create_desc_array(
-            News::process_raw_desc ($raw_desc)
-        );
-
-        $this->link = $link;
-        $this->date = $desc_array[0];
-        $this->short_desc = $desc_array[1];
-        $this->long_desc = $desc_array[2];
-    }
 }
 
 ?>
